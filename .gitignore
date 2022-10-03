@@ -1,2 +1,7 @@
 *__pycache__
 *.ipynb_checkpoints/
+
+*.tfrecord
+data/
+experiments/pretrained_model/
+.DS_Store

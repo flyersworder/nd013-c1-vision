@@ -4,7 +4,7 @@ import os
 import subprocess
 
 import ray
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 from PIL import Image
 from psutil import cpu_count
 from waymo_open_dataset import dataset_pb2 as open_dataset
