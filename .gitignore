@@ -6,3 +6,4 @@ data/
 experiments/pretrained_model/
 .DS_Store
 __pycache__
+.vscode

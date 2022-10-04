@@ -1,7 +1,9 @@
 import argparse
 import glob
 import os
+import pathlib
 import random
+import shutil
 
 import numpy as np
 
@@ -17,8 +19,30 @@ def split(source, destination):
         - source [str]: source data directory, contains the processed tf records
         - destination [str]: destination data directory, contains 3 sub folders: train / val / test
     """
-    # TODO: Implement function
+    data=[source + '/' + file for file in os.listdir(source)]
+    np.random.shuffle(data)
+    
+    # spliting files
+    train_files, val_file, test_file = np.split(data, [int(.75*len(data)), int(.9*len(data))])
 
+    # create dirs and move data files into them
+    train = pathlib.Path(destination) / 'train'
+    train.mkdir(parents=True, exist_ok=True)
+    
+    for file in train_files:
+        shutil.move(file, train)
+    
+    val = pathlib.Path(destination) / 'val'
+    val.mkdir(parents=True, exist_ok=True)
+    
+    for file in val_file:
+        shutil.move(file, val)
+    
+    test = pathlib.Path(destination) / 'test'
+    test.mkdir(parents=True, exist_ok=True)
+
+    for file in test_file:
+        shutil.move(file, test) 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Split data into training / validation / testing')
