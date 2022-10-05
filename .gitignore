@@ -4,6 +4,8 @@
 *.tfrecord
 data/
 experiments/pretrained_model/
+experiments/reference/train/
+experiments/reference/ckpt*
 .DS_Store
 __pycache__
 .vscode
