@@ -5,7 +5,11 @@
 data/
 experiments/pretrained_model/
 experiments/reference/train/
+experiments/reference/eval/
 experiments/reference/ckpt*
+experiments/augmentation/train/
+experiments/augmentation/eval/
+experiments/augmentation/ckpt*
 .DS_Store
 __pycache__
 .vscode
