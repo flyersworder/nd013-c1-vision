@@ -49,7 +49,6 @@ experiments/
     - aug_batch/ - add augmentation and modify batch size
     - aug_batch_lr/ - add augmentation and modify both batch size and learning rate
     - label_map.pbtxt
-    ...
 ```
 
 ### EDA
@@ -63,11 +62,11 @@ In the class, we talked about cross-validation and the importance of creating me
 
 Use the following command to run the script:
 ```
-python create_splits.py --data-dir /home/workspace/data
+python create_splits.py --data-dir data
 ```
 
 ## Training
-You will now launch your very first experiment with the Tensorflow object detection API. Move the `pipeline_new.config` to the `/home/workspace/experiments/reference` folder. Now launch the training process:
+You will now launch your very first experiment with the Tensorflow object detection API. Move the `pipeline_new.config` to the `experiments/reference` folder. Now launch the training process:
 * a training process:
 ```
 python experiments/model_main_tf2.py --model_dir=experiments/reference/ --pipeline_config_path=experiments/reference/pipeline_new.config
@@ -80,12 +79,22 @@ python experiments/model_main_tf2.py --model_dir=experiments/reference/ --pipeli
 
 To monitor the training, you can launch a tensorboard instance by running `python -m tensorboard.main --logdir experiments/reference/`. 
 
+Note that I only train 2,500 steps (rather than 25,000 steps) because it takes a long time to train for so many steps even in a powerful Mac M1 computer where per step time is around 0.5s. This will certainly yield a suboptimal performance.
+
 ### Reference experiment
 The performance of this reference model, as expected, is not splendid. As it is shown below, the classification loss seems to reach a plateau already after 1,000 steps and then fluctuates around 0.7. The other losses also seem to tamper off after 2,000 steps. The precision (shown in the table in the next session) is also quite moderate: the largest precision is merely 0.21% for large objects.
 
 ![reference model](/images/model_reference.png)
 
 ### Improve on the reference
+I try out three ways in order to improve the model performance
+
+1. Augmentation. Because the smaller objects are hugely undersampled, the first augmentation method that comes to my mind is to resize the image so that we can somehow enlarge these small object. For this purpose I use `ssd_random_crop_fixed_aspect_ratio` and set the aspect ratio to 1.2. I also notice that these are mainly color photos, and change the grayscale may also help boost the performance. I thus also add this `random_rgb_to_gray` and set the probability to 0.2. I explore different kinds of augmentations using [this notebook](https://github.com/flyersworder/nd013-c1-vision/blob/main/Explore%20augmentations.ipynb).
+2. Batch size. On top of the augmentation, I just slightly increase the batch size from 2 to 4.
+3. Learning rate. On top of the previous two methods, I slightly decrease the learning rate from 0.013 to 0.001
+
+The performance of these experiments (in terms of precision) are shown in the table below.
+
 
 
 
@@ -104,3 +113,5 @@ Finally, you can create a video of your model's inferences for any tf record fil
 ```
 python inference_video.py --labelmap_path label_map.pbtxt --model_path experiments/reference/exported/saved_model --tf_record_path /data/waymo/testing/segment-12200383401366682847_2552_140_2572_140_with_camera_labels.tfrecord --config_path experiments/reference/pipeline_new.config --output_path animation.gif
 ```
+
+### Animation
