@@ -5,7 +5,20 @@ This section should contain a brief description of the project and what we are t
 
 ## Set up
 
-This section should contain a brief description of the steps to follow to run the code for this repository.
+It is a bit tricky to set the whole thing up in a Mac M1 laptop, but it is still doable following these steps (first you will need the [miniconda](https://docs.conda.io/en/latest/miniconda.html) for Mac M1):
+
+- Follow [this page](https://developer.apple.com/metal/tensorflow-plugin/) to install the tensorflow library
+- Follow [this page](https://tensorflow-object-detection-api-tutorial.readthedocs.io/en/latest/install.html#tensorflow-object-detection-api-installation) to install the object detection API. After that you also need to export these folders to your pythonpath, e.g., if you use zsh, you can add the following statement to your .zshrc file:
+
+```
+export PYTHONPATH=$PYTHONPATH:tensorflow/models/
+export PYTHONPATH=$PYTHONPATH:tensorflow/models/research
+
+```
+
+- Follow [this answer](https://stackoverflow.com/questions/70277737/cant-install-tensorflow-io-on-m1) to install `tensorflow_io`
+
+After all these steps, you are good to go.
 
 ## Dataset
 
@@ -39,17 +52,16 @@ experiments/
     ...
 ```
 
-### Dataset analysis
-This section should contain a quantitative and qualitative description of the dataset. It should include images, charts and other visualizations.
+### EDA
+In [this EDA notebook](https://github.com/flyersworder/nd013-c1-vision/blob/main/Exploratory%20Data%20Analysis.ipynb), we can clearly see that we have images covering different weather and road conditions in different times of a day. Exploring 10,000 random images, we find that the data is dominated by cars and only has a small sample of pedestrians and cyclist, which are normally smaller objects than those of cars. This can cause some problems when training the model, as we can see later that the metrics (precision and recall) for medium and small objects are much worse than the large ones.
 
 ### Cross validation
-This section should detail the cross validation strategy and justify your approach.
+In the class, we talked about cross-validation and the importance of creating meaningful training and validation splits. For this project, the `create_splits.py` file does the following:
+* create three subfolders: `data/train/`, `data/val/`, and `data/test/`
+* split the tf records files between these three folders, essentially using the numpy split function:
+`train_files, val_file, test_file = np.split(data, [int(.75*len(data)), int(.9*len(data))])`
 
-In the class, we talked about cross-validation and the importance of creating meaningful training and validation splits. For this project, you will have to create your own training and validation sets using the files located in `/home/workspace/data/waymo`. The `split` function in the `create_splits.py` file does the following:
-* create three subfolders: `/home/workspace/data/train/`, `/home/workspace/data/val/`, and `/home/workspace/data/test/`
-* split the tf records files between these three folders by symbolically linking the files from `/home/workspace/data/waymo/` to `/home/workspace/data/train/`, `/home/workspace/data/val/`, and `/home/workspace/data/test/`
-
-Use the following command to run the script once your function is implemented:
+Use the following command to run the script:
 ```
 python create_splits.py --data-dir /home/workspace/data
 ```
@@ -66,24 +78,15 @@ Once the training is finished, launch the evaluation process:
 python experiments/model_main_tf2.py --model_dir=experiments/reference/ --pipeline_config_path=experiments/reference/pipeline_new.config --checkpoint_dir=experiments/reference/
 ```
 
-**Note**: Both processes will display some Tensorflow warnings, which can be ignored. You may have to kill the evaluation script manually using
-`CTRL+C`.
-
-To monitor the training, you can launch a tensorboard instance by running `python -m tensorboard.main --logdir experiments/reference/`. You will report your findings in the writeup.
+To monitor the training, you can launch a tensorboard instance by running `python -m tensorboard.main --logdir experiments/reference/`. 
 
 ### Reference experiment
-This section should detail the results of the reference experiment. It should includes training metrics and a detailed explanation of the algorithm's performances.
+The performance of this reference model, as expected, is not splendid. As it is shown below, the classification loss seems to reach a plateau already after 1,000 steps and then fluctuates around 0.7. The other losses also seem to tamper off after 2,000 steps. The precision (shown in the table in the next session) is also quite moderate: the largest precision is merely 0.21% for large objects.
+
+![reference model](/images/model_reference.png)
 
 ### Improve on the reference
-This section should highlight the different strategies you adopted to improve your model. It should contain relevant figures and details of your findings.
 
-Most likely, this initial experiment did not yield optimal results. However, you can make multiple changes to the config file to improve this model. One obvious change consists in improving the data augmentation strategy. The [`preprocessor.proto`](https://github.com/tensorflow/models/blob/master/research/object_detection/protos/preprocessor.proto) file contains the different data augmentation method available in the Tf Object Detection API. To help you visualize these augmentations, we are providing a notebook: `Explore augmentations.ipynb`. Using this notebook, try different data augmentation combinations and select the one you think is optimal for our dataset. Justify your choices in the writeup.
-
-Keep in mind that the following are also available:
-* experiment with the optimizer: type of optimizer, learning rate, scheduler etc
-* experiment with the architecture. The Tf Object Detection API [model zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf2_detection_zoo.md) offers many architectures. Keep in mind that the `pipeline.config` file is unique for each architecture and you will have to edit it.
-
-**Important:** If you are working on the workspace, your storage is limited. You may to delete the checkpoints files after each experiment. You should however keep the `tf.events` files located in the `train` and `eval` folder of your experiments. You can also keep the `saved_model` folder to create your videos.
 
 
 ## Creating an animation
