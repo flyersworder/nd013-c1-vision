@@ -23,7 +23,6 @@ def main(labelmap_path, model_path, tf_record_path, config_path, output_path):
     - tf_record_path [str]: path to tf record file to visualize
     - config_path [str]: path to config file
     - output_path [str]: path to mp4 file
-
     Save the results as mp4 file
     """
     # load label map

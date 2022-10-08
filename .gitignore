@@ -10,11 +10,15 @@ experiments/reference/ckpt*
 experiments/augmentation/train/
 experiments/augmentation/eval/
 experiments/augmentation/ckpt*
+experiments/batch/train/
+experiments/batch/eval/
+experiments/batch/ckpt*
 experiments/aug_batch/train/
 experiments/aug_batch/eval/
 experiments/aug_batch/ckpt*
 experiments/aug_batch_lr/train/
 experiments/aug_batch_lr/eval/
+experiments/aug_batch_lr/exported/
 experiments/aug_batch_lr/ckpt*
 .DS_Store
 __pycache__

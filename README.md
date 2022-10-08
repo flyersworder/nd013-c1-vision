@@ -79,7 +79,7 @@ python experiments/model_main_tf2.py --model_dir=experiments/reference/ --pipeli
 
 To monitor the training, you can launch a tensorboard instance by running `python -m tensorboard.main --logdir experiments/reference/`. 
 
-Note that I only train 2,500 steps (rather than 25,000 steps) because it takes a long time to train for so many steps even in a powerful Mac M1 computer where per step time is around 0.5s. This will certainly yield a suboptimal performance.
+Note that I only train 2,500 steps (rather than 25,000 steps) because it takes a long time to train for so many steps even in a powerful Mac M1 computer where per step time is around 0.5s. This will certainly yield a suboptimal performance. In the later stage I will need to retrain the best performing model with 25,000 steps.
 
 ### Reference experiment
 The performance of this reference model, as expected, is not splendid. As it is shown below, the classification loss seems to reach a plateau already after 1,000 steps and then fluctuates around 0.7. The other losses also seem to tamper off after 2,000 steps. The precision (shown in the table in the next session) is also quite moderate: the largest precision is merely 0.21% for large objects.
@@ -93,25 +93,39 @@ I try out three ways in order to improve the model performance
 2. Batch size. On top of the augmentation, I just slightly increase the batch size from 2 to 4.
 3. Learning rate. On top of the previous two methods, I slightly decrease the learning rate from 0.013 to 0.001
 
-The performance of these experiments (in terms of precision) are shown in the table below.
+The performance of these experiments (in terms of precision) are shown in the table below. As we can observe (as we purely focus on precision here), augmentation alone doesn't really improve precision (but it does improve recall), whereas augmentation plus a slightly bigger batch size improves the precision for medium and small objects. Lastly, reducing the learning rate to 0.001 also improves the performance. I also show the loss values for this experiment below.
 
+| Metrics (Precision)                    | Reference | Augmentation | Aug + Batch | Aug + Batch + LR |
+| -------------------------------------- | --------- | ------------ | ----------- | ---------------- |
+| DetectionBoxes\_Precision/mAP          | 0.01%     | 0.00%        | 0.26%       | 0.20%            |
+| DetectionBoxes\_Precision/mAP (large)  | 0.21%     | 0.10%        | 0.14%       | 0.08%            |
+| DetectionBoxes\_Precision/mAP (medium) | 0.00%     | 0.00%        | 0.55%       | 1.35%            |
+| DetectionBoxes\_Precision/mAP (small)  | 0.00%     | 0.00%        | 0.07%       | 0.23%            |
+| DetectionBoxes\_Precision/mAP@.50IOU   | 0.04%     | 0.03%        | 0.71%       | 0.62%            |
+| DetectionBoxes\_Precision/mAP@.75IOU   | 0.01%     | 0.00%        | 0.04%       | 0.08%            |
 
+I realize that with this tiny precisions, these models will not be able to perform well. In fact, I already notice from the TensorBoard that the evaluation step hardly manages to identify any objects in the images. I have seen that some students are able to achieve a relatively good performance with merely 2,500 steps, but for, I need to retrain the last model in the column with 25,000 steps in order to bring the losses down to a reasonable level (see figure below).
+
+![final model](/images/model_aug_batch_lr_24k_step.png)
 
 
 ## Creating an animation
 ### Export the trained model
 
-Modify the arguments of the following function to adjust it to your models:
+Use the function below to generate the model:
 
 ```
-python experiments/exporter_main_v2.py --input_type image_tensor --pipeline_config_path experiments/reference/pipeline_new.config --trained_checkpoint_dir experiments/reference/ --output_directory experiments/reference/exported/
+python experiments/exporter_main_v2.py --input_type image_tensor --pipeline_config_path experiments/aug_batch_lr/pipeline_new.config --trained_checkpoint_dir experiments/aug_batch_lr/ --output_directory experiments/aug_batch_lr/exported/
 ```
 
-This should create a new folder `experiments/reference/exported/saved_model`. You can read more about the Tensorflow SavedModel format [here](https://www.tensorflow.org/guide/saved_model).
+This should create a new folder `experiments/aug_batch_lr/exported/saved_model`. More about the Tensorflow SavedModel format [here](https://www.tensorflow.org/guide/saved_model).
 
-Finally, you can create a video of your model's inferences for any tf record file. To do so, run the following command (modify it to your files):
+Finally, we can create the animation using the following function:
 ```
-python inference_video.py --labelmap_path label_map.pbtxt --model_path experiments/reference/exported/saved_model --tf_record_path /data/waymo/testing/segment-12200383401366682847_2552_140_2572_140_with_camera_labels.tfrecord --config_path experiments/reference/pipeline_new.config --output_path animation.gif
+python inference_video.py --labelmap_path label_map.pbtxt --model_path experiments/aug_batch_lr/exported/saved_model --tf_record_path data/test/segment-12200383401366682847_2552_140_2572_140_with_camera_labels.tfrecord --config_path experiments/aug_batch_lr/pipeline_new.config --output_path images/animation.gif
 ```
 
 ### Animation
+The animation is displayed below. Interestingly, the STOP sign can be misrecognized as targets.
+
+![animation](/images/animation.gif)
