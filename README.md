@@ -106,7 +106,7 @@ The performance of these experiments (in terms of precision) are shown in the ta
 
 I realize that with this tiny precisions, these models will not be able to perform well. In fact, I already notice from the TensorBoard that the evaluation step hardly manages to identify any objects in the images. I have seen that some students are able to achieve a relatively good performance with merely 2,500 steps, but for, I need to retrain the last model in the column with 25,000 steps in order to bring the losses down to a reasonable level (see figure below).
 
-![final model](/images/model_aug_batch_lr_24k_step.png)
+![final model](/images/model_aug_batch_lr_24k_steps.png)
 
 
 ## Creating an animation
