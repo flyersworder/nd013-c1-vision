@@ -1,7 +1,7 @@
 # Object Detection in an Urban Environment
 
 ## Project overview
-This section should contain a brief description of the project and what we are trying to achieve. Why is object detection such an important component of self driving car systems?
+This is project is the final project of Udacity Data Science Nanodegree where we practice ML for object detection for a self driving car system. This is a pivotal application given the safety and ethical perspectives of a self-driving car. Through this exercise, I also learn that it is quite a daunting task that requires a lot of hard work. Luckily, we don't need to start from scratch and can rely on some previous models. And it can be more convenient with the ever-increasing computing power.
 
 ## Set up
 
@@ -106,7 +106,7 @@ The performance of these experiments (in terms of precision) are shown in the ta
 
 I realize that with this tiny precisions, these models will not be able to perform well. In fact, I already notice from the TensorBoard that the evaluation step hardly manages to identify any objects in the images. I have seen that some students are able to achieve a relatively good performance with merely 2,500 steps, but for, I need to retrain the last model in the column with 25,000 steps in order to bring the losses down to a reasonable level (see figure below).
 
-![final model](/images/model_aug_batch_lr_24k_steps.png)
+![final model](/images/model_aug_batch_lr_25k_steps.png)
 
 
 ## Creating an animation
